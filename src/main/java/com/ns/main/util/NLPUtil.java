@@ -49,12 +49,18 @@ public class NLPUtil {
 			Value.ENTITY_WEIGHT_F.getValue()
 	};
 	
-	public static Set<String> ignoreEntity = /*null;*/NLPUtil.getIgnoreEntity();
+	public static Set<String> ignoreEntity = NLPUtil.getIgnoreEntity();
 	
-	public static Word2Vec word2Vec = /*null;*/ModelUtil.readModel("");
+	public static Word2Vec word2Vec = ModelUtil.readModel("");
 	
-	public static StanfordCoreNLP pipeline = /*null;*/ModelUtil.getPropNlp();
+	public static StanfordCoreNLP pipeline = ModelUtil.getPropNlp();
 	
+	/**
+	 * 取得文本中的命名实体
+	 * @param sentenceList
+	 * @param pipeline
+	 * @return
+	 */
 	public static List<String> getEntity(List<String> sentenceList, StanfordCoreNLP pipeline) {
 		List<String> entityList = new ArrayList<String>();
 		Map<Integer, String> entityMap = new HashMap<Integer, String>();
@@ -62,7 +68,6 @@ public class NLPUtil {
 		for(int i = 0; i < sentenceList.size(); i++) {
 			text.append(sentenceList.get(i) + Value.LINE_FEED.getName());
 		}
-		System.out.println(text);
 		Annotation annotation = new Annotation(text.toString());
 		pipeline.annotate(annotation);
         List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
@@ -104,6 +109,10 @@ public class NLPUtil {
         return entityList;
 	}
 	
+	/**
+	 * 不需要使用的实体
+	 * @return
+	 */
 	private static Set<String> getIgnoreEntity(){
 		Set<String> entities = new HashSet<String>();
 		entities.add("O");
@@ -114,6 +123,12 @@ public class NLPUtil {
 		return entities;
 	}
 	
+	/**
+	 * 两个向量的余弦相似值
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	private static double vecCos(double[] a, double[] b) {
 		if(null == a || null == b || a.length != b.length) {
 			return 0;
@@ -130,11 +145,23 @@ public class NLPUtil {
 		return cc / aa;
 	}
 	
+	/**
+	 * 两个词的余弦相似值
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	private static double wordSim(Word a, Word b) {
 		if(null == a || null == b || null == a.getWordVec() || null == b.getWordVec())return 0;
 		return vecCos(a.getWordVec(), b.getWordVec());
 	}
 	
+	/**
+	 * 主从句的相似度
+	 * @param main
+	 * @param compare
+	 * @return
+	 */
 	public static double sentSimMain(Sentence main, Sentence compare) {
 		if(null == main || null == compare || null == main.getMeanWordList() || null == compare.getMeanWordList())return 0;
 		int size = main.getMeanWordList().size() + main.getMeanWordList().size();
@@ -154,6 +181,11 @@ public class NLPUtil {
 		return maxSumA / size;
 	}
 	
+	/**
+	 * 字符串时间转java时间
+	 * @param time
+	 * @return
+	 */
 	public static long getLongTime(String time) {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
@@ -164,6 +196,12 @@ public class NLPUtil {
 		}
 	}
 	
+	/**
+	 * 对等句子间相似度
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	public static double sentSim(Sentence a, Sentence b) {
 		if(null == a || null == b || null == a.getMeanWordList() || null == b.getMeanWordList())return 0;
 		int size = a.getMeanWordList().size() + b.getMeanWordList().size();
@@ -193,6 +231,12 @@ public class NLPUtil {
 		return (maxSumA + maxSumB) / size;
 	}
 	
+	/**
+	 * 段落句子划分
+	 * @param paragraph
+	 * @param Notes
+	 * @return
+	 */
 	public static List<String> getSentences(String paragraph, List<String> Notes){
 		List<String> notes = Notes;
 		if(null == notes) {
@@ -206,6 +250,12 @@ public class NLPUtil {
 		return sentences;
 	}
 	
+	/**
+	 * 切词后文本句子划分
+	 * @param input
+	 * @param note
+	 * @return
+	 */
 	private static List<String> getSentences(List<String> input, String note){
 		List<String> sentences = new ArrayList<>();
 		for(String string : input) {
@@ -228,7 +278,11 @@ public class NLPUtil {
 		return sentences;
 	}
 	
-	//将时间格式化为yyyy-mm-dd hh:mm:ss的形式
+	/**
+	 * 将时间格式化为yyyy-mm-dd hh:mm:ss的形式
+	 * @param dateTime
+	 * @return
+	 */
 	public static String formatTime(String dateTime) {
 		if(CheckUtil.isDateCn(dateTime)) {
 			dateTime = dateTime.replace("年", "-").replace("月", "-").replace("日", " ");
@@ -250,6 +304,12 @@ public class NLPUtil {
 		return date + " " + hour + ":" + min + ":" + "00";
 	}
 	
+	/**
+	 * 时间获取
+	 * @param sentence
+	 * @param dateTime
+	 * @return
+	 */
 	public static DateTime getTimeTest(String sentence, String dateTime) {
 		if(sentence.equals("") && dateTime.equals(""))return new DateTime();
 		Calendar calendar = Calendar.getInstance();
@@ -350,10 +410,22 @@ public class NLPUtil {
 		return sentTime;
 	}
 	
+	/**
+	 * 时间获取 封装
+	 * @param sentence
+	 * @param dateTime
+	 * @return
+	 */
 	public static String getSentenceTime(String sentence, String dateTime) {
 		return getTimeTest(sentence, formatTime(dateTime)).toString();
 	}
 
+	/**
+	 * 一次摘要 TF 计算
+	 * @param sentences
+	 * @param word
+	 * @return
+	 */
 	public static double getTfValueFromSentence(Sentence sentence, Word word) {
 		double allWords = sentence.getMeanWordList().size();
 		int selectedWord = 0;
@@ -363,6 +435,12 @@ public class NLPUtil {
 		return selectedWord / allWords;
 	}
 	
+	/**
+	 * 一次摘要 IDF 计算
+	 * @param sentences
+	 * @param word
+	 * @return
+	 */
 	public static double getIdfValueFromSentence(List<Sentence> sentences, Word word) {
 		int N_D = sentences.size();
 		int N_C = 0;
@@ -374,6 +452,12 @@ public class NLPUtil {
 		return Math.log(N_D) - Math.log(N_C);
 	}
 	
+	/**
+	 * 最终评分计算
+	 * @param values
+	 * @param isSingleDocument
+	 * @return
+	 */
 	public static double calcuResult(double[] values, boolean isSingleDocument) {
 		if(null == values || values.length != 5) return 0;
 		double result = 0;
@@ -389,6 +473,12 @@ public class NLPUtil {
 		return result;
 	}
 	
+	/**
+	 * 二次摘要 TF计算
+	 * @param document
+	 * @param word
+	 * @return
+	 */
 	private static double getTfValueFromDocument(Document document, Word word) {
 		double allWords = document.getMeanWordSet().size();
 		int selectedWord = 0;
@@ -398,6 +488,12 @@ public class NLPUtil {
 		return selectedWord / allWords;
 	}
 	
+	/**
+	 * 二次摘要 IDF计算
+	 * @param document
+	 * @param word
+	 * @return
+	 */
 	private static double getIdfValueFromDocument(List<Document> documents, Word word) {
 		int N_D = documents.size();
 		int N_C = 0;
@@ -409,6 +505,11 @@ public class NLPUtil {
 		return Math.log(N_D) - Math.log(N_C);
 	}
 	
+	/**
+	 * 字符串转Map -- Entity
+	 * @param entityString
+	 * @return
+	 */
 	private static Map<String, String> getEntity(String entityString){
 		Map<String, String> result  = new HashMap<String, String>();
 		String[] entityStrings = entityString.split(" ");
@@ -419,6 +520,11 @@ public class NLPUtil {
 		return result;
 	}
 	
+	/**
+	 * 计算实体分值
+	 * @param entityString
+	 * @return
+	 */
 	public static double getEntityValue(String entityString) {
 		if(entityString.equals(Value.BLANK.getName()))return 0;
 		Map<String, String> entityMap = getEntity(entityString);
@@ -453,10 +559,16 @@ public class NLPUtil {
 				break;
 			}
 		}
-		System.out.println(entityString + " | " + value);
 		return value;
 	}
 	
+	/**
+	 * 摘要句最终计算以及摘要句选择的MMR算法
+	 * @param lambda
+	 * @param sentences
+	 * @param documents
+	 * @return
+	 */
 	public static List<Sentence> MMR(double lambda, List<Sentence> sentences, List<Document> documents) {
 		if(lambda <= 0.05 || lambda >= 0.95)lambda = 0.5;
 		//update entity value
@@ -548,7 +660,6 @@ public class NLPUtil {
 			for(int i = 0; i < sentences_copy.size(); i++) {
 				Sentence sentence = sentences_copy.get(i);
 				if(sentence.getOrder() == -1)continue;
-				//System.out.println(sentence.toString());
 				double sim = 0;
 				if(selectSentences.size() == 0) {
 					

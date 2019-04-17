@@ -2,49 +2,22 @@
 <html xmlns:th="http://www.thymeleaf.org">
 	<head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>G | File</title>
-        <th:block th:include="frame/frame :: common_header"></th:block>
+        <title>NS | TEST</title>
 	</head>
 	<body>
-    	<header th:include="frame/frame :: common_head"></header>
         <section>
             <div class="banner-home" style="height:25%;">
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12 col-xs-12 col-sm-12">
                             <h1 style="color:#000;margin-top:-175px;"><strong style="font-weight:400;font-size:60px;">File System Online</strong></h1>
-                            <h4 style="color:#000;margin-top:0;">MR Gorden  Based on Disk I</h4>
+                            <h4 style="color:#000;margin-top:0;">NS</h4>
                         </div>
                     </div>
                 </div>
             </div>
-        <div style="margin-top:10px;margin-bottom:-20px;">
-            <div class="form-group col-md-4 col-xs-12 col-sm-4">
-	         	<input type="text" name="old"/>
-	    	</div>
-			<div class="form-group col-md-4 col-xs-12 col-sm-4">
-		  		<input type="text" name="new"/>
-			</div>
-			<div class="form-group col-md-2 col-xs-12 col-sm-2">
-				<button class="btn btn-primary">重命名</button>
-			</div>
-			<div class="form-group col-md-2 col-xs-12 col-sm-2">
-		  		<input type="text" name="key"/>
-			</div>
-		</div>
             <div class="services-home" style="margin-top:-50px;">
                 <div class="container">
-                    <div class="row">
-                        <div id="ctn" class="col-md-12 col-xs-12 col-sm-12 no-padding" style="display:flex;flex-wrap:wrap;">
-                            <div class="col-md-4 col-xs-12 col-sm-4" th:each="file : ${files}">
-                                <div class="services-box projectgid">
-                                    <p th:text="${file.name}"></p>
-                                    <p th:text="${file.type} + '   ' + ${file.size}"></p>
-                                    <p style="display:none;" th:text="${file.path}"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="services-bottom common-heading-1"> </div>
@@ -56,32 +29,5 @@
             </div>
             
         </section>
-		<footer th:include="frame/frame :: common_footer"></footer>
-        <script th:inline="javascript">
-        	function windowcg(p){
-        		window.location.href = "/intro/" + p;
-        	}
-        	$(".projectgid").click(function(){
-        		var path = $(this).find("p").eq(2).html();
-        		if(path.substring(path.length - 4) === ".mp4"){
-        			window.location.href = "/file/" + path.substring(0,path.length - 4) + "mp4";
-        		}
-        		else{
-        			window.location.href = "/file/" + path;
-        		}
-        	});
-        	$("button").click(function(){
-        		$.ajax({
-        	           type: "post",
-        	           url: '/rename',
-        	           data: {oldname: $("input[name='old']").val(), newname: $("input[name='new']").val(), urlr:$(".projectgid").eq(0).children("p").eq(2).html(),key:$("input[name='key']").val()},
-        	           dataType: 'json',
-        	           contentType: "application/json; charset=UTF-8",
-        	           success: function (data) {
-        	           }
-        	     });
-        		window.location.reload();
-        	});
-        </script>
     </body>
 </html>

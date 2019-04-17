@@ -20,6 +20,11 @@ import com.ns.main.entity.Sentence;
 
 public class ConvertTools {
 	
+	/**
+	 * 查询关键字转网页链接
+	 * @param query
+	 * @return
+	 */
 	public static List<String> getLinksByQuery(String query){
 		List<String> result = new ArrayList<String>();
 		String query_gbk = query;
@@ -51,6 +56,12 @@ public class ConvertTools {
  		return result;
 	}
 	
+	/**
+	 * 环球网新闻获取
+	 * @param query
+	 * @param page
+	 * @return
+	 */
 	private static List<String> getHuanqiuNews(String query, int page){
 		String url = "http://s.huanqiu.com/s?q=" + query + "&p=" + page;
 		List<String> result = new ArrayList<String>();
@@ -59,6 +70,12 @@ public class ConvertTools {
 		return result;
 	}
 	
+	/**
+	 * 新浪网新闻获取
+	 * @param query
+	 * @param page
+	 * @return
+	 */
 	private static List<String> getSinaNews(String query, int page){
 		String url = "http://search.sina.com.cn/?c=news&q=" + query 
 				+ "&range=all&col=&source=&from=&country=&size=&time=&a=&sort=rel&pf=0&ps=0&dpc=1&page=" + page;
@@ -67,6 +84,12 @@ public class ConvertTools {
 		return result;
 	}
 	
+	/**
+	 * 新华网链接获取
+	 * @param query
+	 * @param page
+	 * @return
+	 */
 	private static List<String> getXinhuaNews(String query, int page){
 		String url = "http://so.news.cn/getNews?keyword=" + query
 				+ "&curPage=" + page +"&sortField=1&searchFields=1&lang=cn";
@@ -84,6 +107,12 @@ public class ConvertTools {
 		return result;
 	}
 	
+	/**
+	 * 网页文档(html)转新闻文档
+	 * @param document
+	 * @param query
+	 * @return
+	 */
 	public static RawDocument documentToRawDocument(Document document, String query) {
 		if(null == document)return null;
 		SpiderFilter spiderFilter = domainToSite(document.baseUri()).getSpiderFilter();
@@ -100,55 +129,29 @@ public class ConvertTools {
 				query);
 	}
 	
+	/**
+	 * 清除看不见的字符
+	 * @param sentence
+	 * @return
+	 */
 	public static String trim(String sentence) {
 		return sentence.replaceAll("\\s*", "").trim();
 	}
 	
+	/**
+	 * 清除标记
+	 * @param doc
+	 * @return
+	 */
 	public static String cleanNote(String doc) {
 		return doc.replace("“", "").replace("”", "").replace("‘", "").replace("’", "");
 	}
 	
-	public static List<String> contentToSentenceList(String content){
-		String[] docStrings = content.split(Value.DOC_SEPARATOR.getName());
-		String metaString = Value.BLANK.getName();
-		metaString += docStrings.length + Value.DOC_SEPARATOR.getName();
-		List<String> sentList = new ArrayList<String>();
-		for(int i = 0; i < docStrings.length; i++) {
-			String[] sentStrings = docStrings[i].split(Value.SENT_SEPARATOR.getName());
-			metaString += sentStrings.length + Value.SENT_SEPARATOR.getName();
-			for(int j = 0;j < sentStrings.length; j++) {
-				if(!sentStrings[j].equals(Value.BLANK.getName())) {
-					sentList.add(sentStrings[j]);
-				}
-			}
-		}
-		sentList.add(metaString);
-		return sentList;
-	}
-	
-	public static String sentenceListToContent(List<String> sentList){
-		String metaString = sentList.get(sentList.size() - 1);
-		int docSize = Integer.parseInt(metaString.split(Value.DOC_SEPARATOR.getName())[0]);
-		String[] sentMeta = metaString.split(Value.DOC_SEPARATOR.getName())[1].split(Value.SENT_SEPARATOR.getName());
-		int[] sentSize = new int[docSize];
-		for(int i = 0; i < docSize; i++) {
-			sentSize[i] = Integer.parseInt(sentMeta[i]); 
-		}
-		String content = Value.BLANK.getName();
-		int sentCount = 0;
-		int docCount = 0;
-		for(int i = 0; i < sentList.size() - 1; i++) {
-			content += sentList.get(i) + Value.SENT_SEPARATOR.getName();
-			sentCount ++;
-			if(sentCount == sentSize[docCount]) {
-				content += Value.DOC_SEPARATOR.getName();
-				docCount++;
-				sentCount = 0;
-			}
-		}
-		return content;
-	}
-	
+	/**
+	 * 新闻中的简称转换
+	 * @param content
+	 * @return
+	 */
 	public static String toFullName(String content) {
 		Map<String, String> wordMap = new HashMap<String, String>();
 		wordMap.put("中巴", "中国和巴斯坦");
@@ -209,6 +212,11 @@ public class ConvertTools {
 		return content;
 	}
 	
+	/**
+	 * 按照域名匹配抓取方法
+	 * @param link
+	 * @return
+	 */
 	private static NewsSite domainToSite(String link) {
 		switch (HttpUtil.getDomain(link)) {
 		case "www.xinhuanet.com":
@@ -236,6 +244,11 @@ public class ConvertTools {
 		}
 	}
 
+	/**
+	 * 数组转字符串(显示)
+	 * @param array
+	 * @return
+	 */
 	public static String printArray(double[] array) {
 		String outString = "";
 		for(int i =0; i < array.length; i++) {
@@ -244,12 +257,17 @@ public class ConvertTools {
 		return outString;
 	}
 	
+	/**
+	 * 句子集转字符串(显示)
+	 * @param sentences
+	 * @return
+	 */
 	public static String printOut(List<Sentence> sentences) {
 		String outString = "";
 		List<Sentence> ordered_sentences = sentences.stream().sorted(Sentence::compareToByTime).collect(Collectors.toList());
 		for(int i = 0; i< ordered_sentences.size(); i++) {
-			outString += ordered_sentences.get(i).getTime() + " " + ordered_sentences.get(i).getSource() + "\r\n" 
-		+ ordered_sentences.get(i).getContent().replaceAll("\\s*", "").replace("    ", "") + "\r\n";
+			outString += ordered_sentences.get(i).getTime() + " " + ordered_sentences.get(i).getSource() 
+					+ "\r\n" + ordered_sentences.get(i).getContent().replaceAll("\\s*", "").replace("    ", "") + "\r\n";
 		}
 		return outString;
 	}

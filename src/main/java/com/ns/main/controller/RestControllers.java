@@ -28,15 +28,25 @@ public class RestControllers {
 	@Autowired
 	SentenceService sentenceService;
 	
+	/**
+	 * 摘要入口为query,由于未能开发web页面,直接将query写在代码中
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/test")
 	public String test() throws Exception {
 		String query = "凉山火灾";
+		//获取链接
 		List<String> links = ConvertTools.getLinksByQuery(query);
+		//获取新闻
 		List<Document> documentlList = spiderService.fetchDocumentFromLinks(links, query).stream()
 				.map(T->new Document(T)).collect(Collectors.toList());
+		//预处理
 		documentlList = sentenceService.updateDocument(documentlList);
+		//摘要赋分
 		documentlList = sentenceService.updateSentence(documentlList);
 		List<Sentence> sentences = new ArrayList<Sentence>();
+		//一次摘要
 		for(Document d : documentlList) {
 			if(null == d.getSentences())continue;
 			List<Sentence> sentences_doc = d.getSentences().stream()
@@ -52,6 +62,7 @@ public class RestControllers {
 			if(sentences_doc.size() >= 2)sentences.add(sentences_doc.get(1));
 			if(sentences_doc.size() >= 3)sentences.add(sentences_doc.get(2));
 		}
+		//二次摘要(MMR + 摘要)
 		return ConvertTools.printOut(NLPUtil.MMR(0, sentences, documentlList));
 	}
 	

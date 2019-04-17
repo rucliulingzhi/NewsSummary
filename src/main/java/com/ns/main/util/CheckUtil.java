@@ -62,19 +62,6 @@ public class CheckUtil {
 		return (dateTime.contains("年") || dateTime.contains("月") || dateTime.contains("日"));
 	}
 	
-	public static boolean isCruel(Sentence sentence) {
-		String[] cruels = {
-				"总而言之","总之","总的来说"
-				//,"综上所述","结果是",""
-				};
-		for(int i = 0; i < cruels.length; i++) {
-			if(sentence.getContent().contains(cruels[i])) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	public static boolean isParagraph(String para) {
 		for(int i= 0; i < MARKS.length; i++) {
 			if(para.replace("“", "").replace("”", "").endsWith(MARKS[i])) {
