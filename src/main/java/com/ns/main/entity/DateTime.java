@@ -65,7 +65,7 @@ public class DateTime {
 			year = calendar.get(Calendar.YEAR);
 			month = calendar.get(Calendar.MONTH);
 			date = calendar.get(Calendar.DATE);
-			hour = calendar.get(Calendar.HOUR);
+			hour = calendar.get(Calendar.HOUR_OF_DAY);
 			minute = calendar.get(Calendar.MINUTE);
 			second = calendar.get(Calendar.SECOND);
 			if((year_s = "" + year).length() != 4)return false;

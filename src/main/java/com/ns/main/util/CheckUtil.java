@@ -13,7 +13,9 @@ public class CheckUtil {
 		"。", "！", "？"
 	};
 	
-	private static final String[] MARKS = {"。", "！", "？", "”"};
+	private static final String[] MARKS = {
+		"。", "！", "？"
+	};
 	/*
 	 * 
 	 * 
@@ -42,8 +44,9 @@ public class CheckUtil {
 	}
 	
 	public static boolean isSelectedSentence(Sentence sentence) {
-		return (sentence.getQueryValue() > 0.5 && sentence.getTitleValue() > 0.5 
-				&& sentence.getContent().endsWith("。") && sentence.getOrder() != -1);
+		return (sentence.getQueryValue() > 0.4 && sentence.getTitleValue() > 0.4 
+				&& sentence.getContent().endsWith("。") && sentence.getOrder() != -1)
+				&& !sentence.getContent().startsWith("…");
 	}
 	
 	public static boolean isSentence(String sentence) {
@@ -74,7 +77,7 @@ public class CheckUtil {
 	
 	public static boolean isParagraph(String para) {
 		for(int i= 0; i < MARKS.length; i++) {
-			if(para.endsWith(MARKS[i])) {
+			if(para.replace("“", "").replace("”", "").endsWith(MARKS[i])) {
 				return true;
 			}
 		}

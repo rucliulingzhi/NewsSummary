@@ -5,8 +5,15 @@ public enum NewsSite {
 	XINHUANET("www.xinhuanet.com", "新华网", SpiderFilter.XINHUANET),
 	MXINHUANET("m.xinhuanet.com", "新华网移动端", SpiderFilter.MXINHUANET),
 	SINA("news.sina.com.cn", "新浪新闻", SpiderFilter.SINA),
+	KSINA("k.sina.com.cn", "新浪新闻看点", SpiderFilter.KSINA),
+	HUANQIUC("china.huanqiu.com", "环球网国内", SpiderFilter.HUANQIUC),
+	HUANQIUW("world.huanqiu.com", "环球网国际", SpiderFilter.HUANQIUC),
+	HUANQIUS("society.huanqiu.com", "环球网社会", SpiderFilter.HUANQIUC),
 	PEOPLE("people.com.cn", "人民网", SpiderFilter.PEOPLE),
-	MILITARYPEOPLE("military.people.com.cn", "人民网军事频道", SpiderFilter.MILITARYPEOPLE);
+	MILITARYPEOPLE("military.people.com.cn", "人民网军事频道", SpiderFilter.MILITARYPEOPLE),
+	HEALTHPEOPLE("health.people.com.cn", "人民健康网", SpiderFilter.HEALTHPEOPLE);
+	
+	
 	
 	private String domain;
 	

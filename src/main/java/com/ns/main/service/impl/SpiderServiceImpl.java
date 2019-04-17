@@ -14,11 +14,11 @@ import com.ns.main.util.HttpUtil;
 public class SpiderServiceImpl implements SpiderService{
 
 	@Override
-	public List<RawDocument> fetchDocumentFromLinks(List<String> links){
+	public List<RawDocument> fetchDocumentFromLinks(List<String> links, String query){
 		return links.stream().map(T->
 		ConvertTools.documentToRawDocument(
-						HttpUtil.getDocumentByUrl(T)
-						)).collect(Collectors.toList());
+						HttpUtil.getDocumentByUrl(T), query
+						)).filter(T->!(null == T)).collect(Collectors.toList());
  	}
 	
 }

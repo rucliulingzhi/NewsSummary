@@ -1,5 +1,6 @@
 package com.ns.main.util;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,6 +21,34 @@ public class HttpUtil {
 		try {
 	        Document document = Jsoup.connect(url).userAgent("Mozilla").timeout(10000)
 	        		.ignoreContentType(true).get();
+	        return document;
+		} catch(Exception e) {
+			System.out.println(url);
+			e.printStackTrace();
+			return null;
+		}
+	}
+	//欺骗s.huanqiu.com,获取真实查询结果
+	public static Document getDocumentByUrl_HQ(String url) {
+		try {
+	        Document document = Jsoup.connect(url)
+	        		.header("Referer", "https://" + "www.baidu.com" + "/")
+	        		.header("Host", getDomain(url))
+	        		.userAgent("Mozilla/5.0")
+	        		.timeout(10000)
+	        		.ignoreContentType(true).get();
+	        return document;
+		} catch(Exception e) {
+			System.out.println(url);
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static Document getDocumentByUrl_GBK(String url) {
+		try {
+			System.out.println(url);
+	        Document document = Jsoup.parse(new URL(url).openStream(), "GBK", url);
 	        return document;
 		} catch(Exception e) {
 			e.printStackTrace();

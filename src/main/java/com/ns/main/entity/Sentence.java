@@ -14,9 +14,9 @@ public class Sentence implements Comparable<Sentence>{
 	
 	private String source;
 	
-	private boolean isFirstPara;
+	private boolean firstPara;
 	
-	private boolean isFirstSent;
+	private boolean firstSent;
 	//段落中的第几句
 	private int order;
 	//去除句子中人名前缀的内容
@@ -34,7 +34,7 @@ public class Sentence implements Comparable<Sentence>{
 	1 -- Position
 	2 -- Title Like
 	3 -- Query Like
-	4 -- Crul
+	4 -- Entity
 	*/
 	private double tfIdfValue;
 	
@@ -44,14 +44,14 @@ public class Sentence implements Comparable<Sentence>{
 	
 	private double queryValue;
 	
-	private double cruelValue;
+	private double entityValue;
 	
 	private double[] values;
 	
 	private double result;
 	
 	public boolean updateSentence(Set<Word> meanSet) {
-		if(order == 0)isFirstSent = true;
+		if(order == 0)firstSent = true;
 		meanWordList = new ArrayList<>();
 		if(null == wordList || wordList.size() == 0)return false;
 		Set<String> meanSetString = meanSet.stream().map(T->T.getContent()).collect(Collectors.toSet());
@@ -63,11 +63,11 @@ public class Sentence implements Comparable<Sentence>{
 		return true;
 	}
 	
-	public Sentence(String link, boolean isFirstPara, int order, String content, String time, String source) {
+	public Sentence(String link, boolean firstPara, int order, String content, String time, String source) {
 		this.time = time;
 		this.content = ConvertTools.trim(content);
 		this.order = order;
-		this.isFirstPara = isFirstPara;
+		this.firstPara = firstPara;
 		this.link = link;
 		this.source = source;
 	}
@@ -81,19 +81,19 @@ public class Sentence implements Comparable<Sentence>{
 	}
 
 	public boolean isFirstPara() {
-		return isFirstPara;
+		return firstPara;
 	}
 
-	public void setFirstPara(boolean isFirstPara) {
-		this.isFirstPara = isFirstPara;
+	public void setFirstPara(boolean firstPara) {
+		this.firstPara = firstPara;
 	}
 
 	public boolean isFirstSent() {
-		return isFirstSent;
+		return firstSent;
 	}
 
-	public void setFirstSent(boolean isFirstSent) {
-		this.isFirstSent = isFirstSent;
+	public void setFirstSent(boolean firstSent) {
+		this.firstSent = firstSent;
 	}
 
 	public int getOrder() {
@@ -136,7 +136,7 @@ public class Sentence implements Comparable<Sentence>{
 			wordlist = wordlist + word.toString() + " ";
 		}
 		if(null == values)values = new double[5];
-		return "link:" + link + "\r\nisFirstPara:" + isFirstPara +  "\r\nisFirstSent:" + isFirstSent + "\r\norder:" + order
+		return "link:" + link + "\r\nisFirstPara:" + firstPara +  "\r\nisFirstSent:" + firstSent + "\r\norder:" + order
 				+ "\r\ntime:" + time + "\r\nwordlist:" + wordlist + "\r\nweight:" + ConvertTools.printArray(values) + "\r\n"
 				+ content + "\r\n" + values[0] + "\r\n" + result;
 	}
@@ -181,14 +181,6 @@ public class Sentence implements Comparable<Sentence>{
 		this.queryValue = queryValue;
 	}
 
-	public double getCruelValue() {
-		return cruelValue;
-	}
-
-	public void setCruelValue(double cruelValue) {
-		this.cruelValue = cruelValue;
-	}
-
 	public double[] getValues() {
 		return values;
 	}
@@ -230,6 +222,14 @@ public class Sentence implements Comparable<Sentence>{
 
 	public void setContent_cut(String content_cut) {
 		this.content_cut = content_cut;
+	}
+
+	public double getEntityValue() {
+		return entityValue;
+	}
+
+	public void setEntityValue(double entityValue) {
+		this.entityValue = entityValue;
 	}
 	
 }

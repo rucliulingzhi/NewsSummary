@@ -1,5 +1,8 @@
 package com.ns.main.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,24 +14,90 @@ import org.jsoup.nodes.Element;
 
 import com.ns.main.config.NewsSite;
 import com.ns.main.config.SpiderFilter;
+import com.ns.main.config.Value;
 import com.ns.main.entity.RawDocument;
 import com.ns.main.entity.Sentence;
 
 public class ConvertTools {
 	
-	public static RawDocument documentToRawDocument(Document document) {
+	public static List<String> getLinksByQuery(String query){
+		List<String> result = new ArrayList<String>();
+		String query_gbk = query;
+		String query_utf8 = query;
+		try {
+			query_gbk = URLEncoder.encode(query, "gbk");
+			query_utf8 = URLEncoder.encode(query, "utf8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		int count = 1;
+ 		while (result.size() < 10 && count < 10) {
+			result.addAll(getSinaNews(query_gbk, count));
+			count++;
+		}
+ 		System.out.println(result.size());
+ 		count = 1;
+ 		while (result.size() < 30 && count < 10) {
+			result.addAll(getHuanqiuNews(query_utf8, count));
+			count++;
+		}
+ 		count = 1;
+ 		System.out.println(result.size());
+ 		while (result.size() < 60 && count < 20) {
+ 			result.addAll(getXinhuaNews(query_utf8, count));
+ 			count++;
+		}
+ 		System.out.println(result.size());
+ 		return result;
+	}
+	
+	private static List<String> getHuanqiuNews(String query, int page){
+		String url = "http://s.huanqiu.com/s?q=" + query + "&p=" + page;
+		List<String> result = new ArrayList<String>();
+		result.addAll(HttpUtil.getDocumentByUrl_HQ(url).select("h3 a").stream()
+				.map(T->T.attr("href")).filter(T->T.contains("html")).collect(Collectors.toList()));
+		return result;
+	}
+	
+	private static List<String> getSinaNews(String query, int page){
+		String url = "http://search.sina.com.cn/?c=news&q=" + query 
+				+ "&range=all&col=&source=&from=&country=&size=&time=&a=&sort=rel&pf=0&ps=0&dpc=1&page=" + page;
+		List<String> result = new ArrayList<String>();
+		result.addAll(HttpUtil.getDocumentByUrl_GBK(url).select("h2 a").stream().map(T->T.attr("href")).collect(Collectors.toList()));
+		return result;
+	}
+	
+	private static List<String> getXinhuaNews(String query, int page){
+		String url = "http://so.news.cn/getNews?keyword=" + query
+				+ "&curPage=" + page +"&sortField=1&searchFields=1&lang=cn";
+		String[] news = HttpUtil.getDocumentByUrl(url).select("body").toString().split("\"url\":\"");
+		List<String> result = new ArrayList<String>();
+		for(int i = 1; i < news.length; i++) {
+			String link = news[i].split("\"}")[0];
+			if(link.contains("emerinfo.cn") || link.contains("xhwkhdapp") 
+					|| link.contains("test.") || link.contains("mrdx") || !link.contains("xinhuanet")
+					|| link.contains("video") || link.contains(".com/201")) {
+				continue;
+			}
+			result.add(link);
+		}
+		return result;
+	}
+	
+	public static RawDocument documentToRawDocument(Document document, String query) {
+		if(null == document)return null;
 		SpiderFilter spiderFilter = domainToSite(document.baseUri()).getSpiderFilter();
-		String doc = "";
+		StringBuilder doc = new StringBuilder();
 		for(Element element : document.select(spiderFilter.getDocFilter())) {
-			doc = doc + element.text() + "\r\n";
+			doc.append(element.text() + Value.LINE_FEED.getName());
 		}
 		return new RawDocument(
 				document.baseUri(), 
 				document.select(spiderFilter.getTitleFilter()).text(), 
-				doc,
+				doc.toString(),
 				document.select(spiderFilter.getTimeFilter()).text(), 
 				document.select(spiderFilter.getSourceFilter()).text(),
-				"印巴冲突");
+				query);
 	}
 	
 	public static String trim(String sentence) {
@@ -37,6 +106,47 @@ public class ConvertTools {
 	
 	public static String cleanNote(String doc) {
 		return doc.replace("“", "").replace("”", "").replace("‘", "").replace("’", "");
+	}
+	
+	public static List<String> contentToSentenceList(String content){
+		String[] docStrings = content.split(Value.DOC_SEPARATOR.getName());
+		String metaString = Value.BLANK.getName();
+		metaString += docStrings.length + Value.DOC_SEPARATOR.getName();
+		List<String> sentList = new ArrayList<String>();
+		for(int i = 0; i < docStrings.length; i++) {
+			String[] sentStrings = docStrings[i].split(Value.SENT_SEPARATOR.getName());
+			metaString += sentStrings.length + Value.SENT_SEPARATOR.getName();
+			for(int j = 0;j < sentStrings.length; j++) {
+				if(!sentStrings[j].equals(Value.BLANK.getName())) {
+					sentList.add(sentStrings[j]);
+				}
+			}
+		}
+		sentList.add(metaString);
+		return sentList;
+	}
+	
+	public static String sentenceListToContent(List<String> sentList){
+		String metaString = sentList.get(sentList.size() - 1);
+		int docSize = Integer.parseInt(metaString.split(Value.DOC_SEPARATOR.getName())[0]);
+		String[] sentMeta = metaString.split(Value.DOC_SEPARATOR.getName())[1].split(Value.SENT_SEPARATOR.getName());
+		int[] sentSize = new int[docSize];
+		for(int i = 0; i < docSize; i++) {
+			sentSize[i] = Integer.parseInt(sentMeta[i]); 
+		}
+		String content = Value.BLANK.getName();
+		int sentCount = 0;
+		int docCount = 0;
+		for(int i = 0; i < sentList.size() - 1; i++) {
+			content += sentList.get(i) + Value.SENT_SEPARATOR.getName();
+			sentCount ++;
+			if(sentCount == sentSize[docCount]) {
+				content += Value.DOC_SEPARATOR.getName();
+				docCount++;
+				sentCount = 0;
+			}
+		}
+		return content;
 	}
 	
 	public static String toFullName(String content) {
@@ -107,8 +217,20 @@ public class ConvertTools {
 			return NewsSite.MXINHUANET;
 		case "news.sina.com.cn":
 			return NewsSite.SINA;
+		case "k.sina.com.cn":
+			return NewsSite.KSINA;
+		case "cj.sina.com.cn":
+			return NewsSite.KSINA;
 		case "military.people.com.cn":
 			return NewsSite.MILITARYPEOPLE;
+		case "health.people.com.cn":
+			return NewsSite.HEALTHPEOPLE;
+		case "china.huanqiu.com":
+			return NewsSite.HUANQIUC;
+		case "world.huanqiu.com":
+			return NewsSite.HUANQIUW;
+		case "society.huanqiu.com":
+			return NewsSite.HUANQIUS;
 		default:
 			return NewsSite.PEOPLE;
 		}

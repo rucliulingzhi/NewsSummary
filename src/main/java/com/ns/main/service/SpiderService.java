@@ -5,6 +5,6 @@ import com.ns.main.entity.RawDocument;
 
 public interface SpiderService {
 
-	public List<RawDocument> fetchDocumentFromLinks(List<String> links);
+	public List<RawDocument> fetchDocumentFromLinks(List<String> links, String query);
 	
 }

@@ -5,9 +5,11 @@ public enum SpiderFilter {
 	XINHUANET(".h-title", ".h-time", "#source", "#p-detail p"),
 	MXINHUANET(".h-title", ".h-time", "#source", "#p-detail p"),
 	SINA(".main-title", ".date", ".source", "#article p"),
+	KSINA(".main-title", ".date", ".source", "#artibody p font"),
+	HUANQIUC(".tle", ".la_t_a", ".la_t_b a", ".la_con p"),
 	PEOPLE("h1", ".box01 .fl", ".box01 .fl a", ".box_con p"),
-	MILITARYPEOPLE("#p_title", "#p_publishtime", "#p_origin a", "#p_content p");
-	
+	MILITARYPEOPLE("#p_title", "#p_publishtime", "#p_origin a", "#p_content p"),
+	HEALTHPEOPLE("h2", ".artOri", ".artOri a", ".artDet p");
 	
 	private String titleFilter;
 	

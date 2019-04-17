@@ -1,5 +1,7 @@
 package com.ns.main.entity;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class RawDocument {
 
 	private String link;
@@ -15,7 +17,7 @@ public class RawDocument {
 	private String queryString;
 	
 	public RawDocument(String link, String title, String document, String time, String source, String queryString) {
-		this.document = document;
+		this.document = StringUtils.deleteWhitespace(document);
 		this.time = time;
 		this.link = link;
 		this.title = title;
